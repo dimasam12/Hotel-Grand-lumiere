@@ -9,3 +9,5 @@ WORKDIR /app
 COPY . /app
 
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
+
+COPY Caddyfile /etc/caddy/Caddyfile
