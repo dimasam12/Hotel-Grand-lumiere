@@ -1,4 +1,3 @@
-config.php
-booking/midtrans_config.php
+
 *.log
 .env
