@@ -248,6 +248,26 @@
       font-family: inherit;
     }
 
+    .input-wrap input.has-toggle {
+      padding-right: 38px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.35);
+      font-size: 16px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover { color: rgba(212,175,55,0.8); }
+
     .input-wrap input::placeholder {
       color: rgba(255,255,255,0.22);
     }
@@ -392,7 +412,10 @@
           <label>Password</label>
           <div class="input-wrap">
             <i class="ti ti-lock input-icon"></i>
-            <input type="password" id="loginPassword" placeholder="••••••••">
+            <input type="password" id="loginPassword" class="has-toggle" placeholder="••••••••">
+            <button class="toggle-password" type="button" onclick="togglePass('loginPassword', this)" tabindex="-1">
+              <i class="ti ti-eye"></i>
+            </button>
           </div>
         </div>
 
@@ -436,7 +459,10 @@
           <label>Password</label>
           <div class="input-wrap">
             <i class="ti ti-lock input-icon"></i>
-            <input type="password" id="regPassword" placeholder="••••••••">
+            <input type="password" id="regPassword" class="has-toggle" placeholder="••••••••">
+            <button class="toggle-password" type="button" onclick="togglePass('regPassword', this)" tabindex="-1">
+              <i class="ti ti-eye"></i>
+            </button>
           </div>
         </div>
 
@@ -444,7 +470,10 @@
           <label>Confirm password</label>
           <div class="input-wrap">
             <i class="ti ti-shield-check input-icon"></i>
-            <input type="password" id="regConfirm" placeholder="••••••••">
+            <input type="password" id="regConfirm" class="has-toggle" placeholder="••••••••">
+            <button class="toggle-password" type="button" onclick="togglePass('regConfirm', this)" tabindex="-1">
+              <i class="ti ti-eye"></i>
+            </button>
           </div>
         </div>
 
@@ -466,6 +495,19 @@
   </div>
 
   <script>
+    // TOGGLE PASSWORD
+    function togglePass(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ti ti-eye-off';
+      } else {
+        input.type = 'password';
+        icon.className = 'ti ti-eye';
+      }
+    }
+
     // BINTANG
     const starsEl = document.getElementById('stars');
     for (let i = 0; i < 80; i++) {
