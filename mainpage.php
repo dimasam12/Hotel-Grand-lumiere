@@ -1407,48 +1407,127 @@ $stmt->close();
             text-transform: uppercase;
         }
 
-        @media (max-width: 768px) {
-            nav {
-                padding: 0 1.25rem;
-            }
+        /* ── TABLET (768px – 1024px) ── */
+        @media (max-width: 1024px) {
+            nav { padding: 0 1.5rem; }
 
-            .nav-brand span {
-                font-size: 14px;
-                letter-spacing: 2px;
-            }
-
-            .nav-links li a span {
-                display: none;
-            }
-
-            .nav-links li a {
-                padding: 8px 12px;
-            }
-
-            .section-heading {
-                font-size: 30px;
-            }
+            .container { padding: 0 1.5rem; }
 
             #pemesanan .booking-wrap {
                 grid-template-columns: 1fr;
             }
 
-            .booking-card {
-                position: static;
+            .booking-card { position: static; }
+
+            .video-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 200px 200px;
             }
 
-            .stats-row {
-                gap: 1.5rem;
+            .video-card:first-child { grid-row: auto; grid-column: 1 / 3; }
+
+            .section-heading { font-size: 36px; }
+
+            .riwayat-btn span { display: none; }
+        }
+
+        /* ── MOBILE (≤ 768px) ── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 0 1rem;
+                height: 56px;
             }
+
+            .nav-brand span {
+                font-size: 13px;
+                letter-spacing: 2px;
+            }
+
+            .nav-links { gap: 0; }
+
+            .nav-links li a span { display: none; }
+
+            .nav-links li a {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .riwayat-btn {
+                padding: 5px 9px;
+                font-size: 11px;
+            }
+
+            .riwayat-btn i ~ * { display: none; }
+
+            .riwayat-dropdown,
+            .profile-dropdown {
+                width: calc(100vw - 2rem);
+                right: -0.5rem;
+            }
+
+            section { padding: 76px 0 48px; }
+
+            .container { padding: 0 1rem; }
+
+            .section-heading { font-size: 26px; }
+
+            .section-sub { font-size: 13px; }
+
+            .slide-card { flex: 0 0 240px; height: 165px; }
 
             .video-grid {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto;
             }
 
-            .video-card:first-child {
-                grid-row: auto;
+            .video-card:first-child { grid-row: auto; grid-column: auto; }
+
+            .video-card { min-height: 180px; }
+
+            .quick-facilities {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
+
+            .stats-row { gap: 1rem; }
+
+            .stat-num { font-size: 28px; }
+
+            #fasilitas .fac-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #pemesanan .booking-wrap { gap: 1.25rem; }
+
+            .form-row { grid-template-columns: 1fr; }
+
+            .booking-card { padding: 1.25rem; }
+
+            .toast {
+                bottom: 1rem;
+                right: 1rem;
+                left: 1rem;
+                right: 1rem;
+            }
+
+            .modal-inner { width: 95vw; }
+        }
+
+        /* ── SMALL MOBILE (≤ 480px) ── */
+        @media (max-width: 480px) {
+            .nav-brand span { display: none; }
+
+            .nav-links li a { padding: 8px 8px; }
+
+            .section-heading { font-size: 22px; }
+
+            .quick-facilities { grid-template-columns: 1fr; }
+
+            .slide-card { flex: 0 0 200px; height: 145px; }
+
+            .stat-num { font-size: 24px; }
+
+            .booking-card-title { font-size: 18px; }
         }
     </style>
 </head>
