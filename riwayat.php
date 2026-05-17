@@ -535,73 +535,146 @@ tr.is-done td { opacity: .55; }
 
 /* ── MOBILE (≤ 768px) ── */
 @media (max-width: 768px) {
-    nav { padding: 0 16px; height: 58px; }
-    .nav-brand span { font-size: 16px; }
-    .nav-links a { padding: 6px 10px; font-size: 13px; }
-    .nav-links span { display: none; }
+    /* NAV */
+    nav { padding: 0 14px; height: 56px; gap: 8px; }
+    .nav-brand span { font-size: 15px; letter-spacing: 1px; }
+    .nav-brand i { font-size: 20px; }
+    .nav-links { gap: 4px; }
+    .nav-links a {
+        padding: 6px 9px;
+        font-size: 12px;
+        gap: 5px;
+    }
+    .nav-links a span { display: none; }
+    .nav-user { gap: 8px; }
+    .nav-avatar { width: 34px; height: 34px; font-size: 12px; }
+    .logout-link { font-size: 0; } /* hide text, keep icon */
+    .logout-link i { font-size: 18px; }
 
-    .page-wrapper { padding: 76px 12px 40px; }
-    .page-header h1 { font-size: 26px; }
+    /* PAGE */
+    .page-wrapper { padding: 72px 12px 48px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 24px; }
     .page-header p { font-size: 13px; }
 
-    .toolbar { flex-direction: column; align-items: flex-start; gap: 8px; }
-    .search-box { width: 100%; }
+    /* TOOLBAR */
+    .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+    .search-box { width: 100%; box-sizing: border-box; }
 
-    .table-wrap { border: none; background: transparent; overflow: visible; }
+    /* TABLE → CARD LAYOUT */
+    .table-wrap {
+        border: none;
+        background: transparent;
+        overflow: visible;
+        border-radius: 0;
+    }
+    table { min-width: unset; width: 100%; }
     table thead { display: none; }
     table, tbody, tr, td { display: block; width: 100%; }
 
     tr {
         background: var(--navy-card);
         border: 1px solid var(--gold-border);
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 12px;
-        padding: 14px 16px;
+        padding: 14px 14px 12px;
         position: relative;
+        overflow: hidden;
     }
     tr:hover td { background: transparent; }
-    tr.is-done { opacity: .6; }
+    tr.is-done { opacity: .55; }
+
+    /* Gold left accent strip */
+    tr::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--gold-border);
+        border-radius: 12px 0 0 12px;
+    }
 
     td {
         border-top: none;
-        padding: 3px 0;
+        padding: 5px 0;
         font-size: 13px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 8px;
+        line-height: 1.4;
     }
+    td + td { border-top: 1px solid rgba(255,255,255,.04); }
 
-    td::before {
+    /* Label pseudo-element */
+    td[data-label]::before {
         content: attr(data-label);
         color: var(--muted);
-        font-size: 11px;
-        letter-spacing: 0.5px;
+        font-size: 10px;
+        letter-spacing: 0.6px;
         text-transform: uppercase;
         flex-shrink: 0;
-        min-width: 90px;
+        min-width: 82px;
+        padding-right: 6px;
     }
 
+    /* Value side: don't overflow */
+    td[data-label] > * {
+        max-width: calc(100% - 90px);
+        word-break: break-word;
+    }
+    td[data-label] > span,
+    td[data-label] > b { display: inline-block; }
+
+    /* Kode booking: monospace can be long */
+    td[data-label="Kode"] {
+        font-family: monospace;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+    }
+    td[data-label="Kode"]::before {
+        font-family: 'Jost', sans-serif;
+    }
+
+    /* Status td */
+    td[data-label="Status"] { padding-bottom: 6px; }
+
+    /* Actions td — no label, full-width buttons */
     td:last-child {
-        margin-top: 10px;
+        border-top: 1px solid var(--gold-border) !important;
+        margin-top: 8px;
         padding-top: 10px;
-        border-top: 1px solid var(--gold-border);
+        display: flex;
         flex-wrap: wrap;
+        gap: 6px;
         justify-content: flex-end;
+        align-items: center;
     }
-    td:last-child::before { display: none; }
+    td:last-child::before { display: none !important; }
 
-    .act-wrap { justify-content: flex-end; }
+    .act-wrap {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .btn { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
 
-    #toast { white-space: normal; text-align: center; width: 90%; }
+    /* Toast */
+    #toast { white-space: normal; text-align: center; width: 90%; max-width: 320px; }
+
+    /* Modal tweak */
+    .modal { width: 96%; border-radius: 12px; }
+    .confirm-box { width: 92%; border-radius: 12px; padding: 24px 20px; }
 }
 
-/* ── SMALL MOBILE (≤ 480px) ── */
-@media (max-width: 480px) {
+/* ── SMALL MOBILE (≤ 420px) ── */
+@media (max-width: 420px) {
     .nav-brand span { display: none; }
-    .page-header h1 { font-size: 22px; }
-    td::before { min-width: 80px; font-size: 10px; }
-    .btn { padding: 5px 10px; font-size: 11px; }
+    .page-header h1 { font-size: 21px; }
+    td[data-label]::before { min-width: 72px; font-size: 9.5px; }
+    .btn { padding: 6px 10px; font-size: 11.5px; }
+    td[data-label] > * { max-width: calc(100% - 80px); }
 }
 </style>
 </head>
@@ -695,7 +768,7 @@ tr.is-done td { opacity: .55; }
                     <td data-label="Check Out"><?= $b['check_out'] ? date('d M Y', strtotime($b['check_out'])) : '—' ?></td>
                     <td data-label="Malam"><?= intval($b['jumlah_malam']) ?> mlm</td>
                     <td data-label="Total" style="color:var(--gold)">Rp<?= number_format($b['total'], 0, ',', '.') ?></td>
-                    <td>
+                    <td data-label="Status">
                         <span
                             class="badge badge-<?= htmlspecialchars($b['status']) ?>"
                             data-status="<?= htmlspecialchars($b['status']) ?>"
