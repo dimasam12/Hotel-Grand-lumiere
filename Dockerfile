@@ -2,8 +2,10 @@ FROM dunglas/frankenphp:php8.4-bookworm
 
 RUN install-php-extensions mysqli pdo_mysql
 
-COPY . /app
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-RUN if [ -f composer.json ]; then composer install --optimize-autoloader --no-scripts --no-interaction; fi
+COPY . /app
+
+RUN composer install --optimize-autoloader --no-scripts --no-interaction
