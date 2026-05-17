@@ -10,4 +10,6 @@ COPY . /app
 
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
 
-COPY Caddyfile /etc/caddy/Caddyfile
+ENV SERVER_NAME=":8080"
+
+CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
