@@ -1,5 +1,5 @@
 <?php
-include 'koneksi.php';
+require_once 'config.php';
 $pesan = '';
 $tipe = '';
 
