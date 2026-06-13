@@ -10,6 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once '../config.php';
 opcache_reset();
 
+$test = $conn->query("SELECT COUNT(*) as total FROM kamar WHERE is_active = 1");
+$row = $test->fetch_assoc();
+die("Jumlah kamar: " . $row['total']);
+
 /* ── CEK SESSION ADMIN ── */
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: ../index.html');
