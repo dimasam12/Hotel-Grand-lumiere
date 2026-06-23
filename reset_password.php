@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="fp-success-icon">✅</div>
             <p class="fp-success-title">Password berhasil diubah!</p>
             <p class="fp-success-sub">Kamu sekarang bisa masuk menggunakan password baru.</p>
-            <a href="fungsidatabase/akun/index.php" class="fp-success-btn">→ Login sekarang</a>
+            <a href="index.php" class="fp-success-btn">→ Login sekarang</a>
         </div>
 
     <?php else: ?>
