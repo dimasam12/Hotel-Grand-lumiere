@@ -2288,6 +2288,7 @@ $stmt->close();
             'Deluxe Room': 1000000,
             'Junior Suite': 1500000,
             'Deluxe Suite': 2500000,
+            'Executive Room': 1200000,
             'Presidential Suite': 5000000
         };
 
