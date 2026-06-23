@@ -2076,6 +2076,16 @@ $stmt->close();
                                     <div class="room-option-price">Rp2.500.000<span
                                             style="font-size:11px;color:var(--text-dim)">/malam</span></div>
                                 </div>
+                                <div class="room-option" onclick="selectRoom(this, 'Executive Room', 1200000)">
+    <div class="room-option-check"></div>
+    <div class="room-option-icon"><i class="ti ti-briefcase"></i></div>
+    <div class="room-option-info">
+        <div class="room-option-name">Executive Room</div>
+        <div class="room-option-detail">City view · Queen bed · 55 m² · Lantai 5</div>
+    </div>
+    <div class="room-option-price">Rp1.200.000<span
+            style="font-size:11px;color:var(--text-dim)">/malam</span></div>
+</div>
 
                                 <div class="room-option" onclick="selectRoom(this, 'Presidential Suite', 5000000)">
                                     <div class="room-option-check"></div>
