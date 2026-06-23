@@ -28,7 +28,7 @@ if ($check_out <= $check_in) $errors[] = 'Check-out harus setelah check-in';
 if ($jumlah_malam < 1)  $errors[] = 'Jumlah malam tidak valid';
 if ($harga_per_malam <= 0) $errors[] = 'Harga tidak valid';
 
-$tipe_valid = ['Deluxe Room','Junior Suite','Deluxe Suite','Presidential Suite'];
+$tipe_valid = ['Deluxe Room', 'Junior Suite', 'Deluxe Suite', 'Executive Room', 'Presidential Suite'];
 if (!in_array($tipe_kamar, $tipe_valid)) $errors[] = 'Tipe kamar tidak valid';
 
 if ($errors) {
@@ -57,21 +57,6 @@ if (!$stmt) {
     exit;
 }
 
-// 14 parameter:
-// i = user_id
-// s = kode_booking
-// s = nama_tamu
-// s = email_tamu
-// s = tipe_kamar
-// i = harga_per_malam
-// s = check_in          ← PERBAIKAN: was 'i', now 's'
-// s = check_out
-// i = jumlah_malam
-// i = jumlah_tamu
-// i = subtotal
-// i = pajak
-// i = total
-// s = permintaan_khusus
 $stmt->bind_param('issssissiiiiis',
     $user_id, $kode_booking, $nama_tamu, $email_tamu,
     $tipe_kamar, $harga_per_malam,
