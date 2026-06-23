@@ -144,6 +144,10 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 
     $stmt->close();
 
+    // FIX CSV: Matikan display error supaya warning PHP tidak ikut ter-export
+    ini_set('display_errors', '0');
+    error_reporting(0);
+
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="pemesanan_' . date('Ymd_His') . '.csv"');
 
@@ -151,6 +155,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 
     fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
+    // FIX CSV: tambah parameter escape '' untuk PHP 8.4+
     fputcsv($out, [
         'ID',
         'Kode Booking',
@@ -164,7 +169,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         'Status',
         'Username',
         'Email User'
-    ]);
+    ], ',', '"', '');
 
     foreach ($rows as $r) {
         fputcsv($out, [
@@ -180,7 +185,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
             $r['status'],
             $r['username'] ?? '',
             $r['email'] ?? ''
-        ]);
+        ], ',', '"', '');
     }
 
     fclose($out);
