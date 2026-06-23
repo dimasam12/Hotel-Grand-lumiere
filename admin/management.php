@@ -231,7 +231,7 @@ $kamar_maint     = count(array_filter($semua_kamar, fn($k) => $k['status'] === '
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manajemen Kamar — Grand Lumière 2</title>
+<title>Manajemen Kamar — Grand Lumière </title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
