@@ -12,7 +12,7 @@ opcache_reset();
 
 $test = $conn->query("SELECT COUNT(*) as total FROM kamar WHERE is_active = 1");
 $row = $test->fetch_assoc();
-die("Jumlah kamar: " . $row['total']);
+// die("Jumlah kamar: " . $row['total']);
 
 /* ── CEK SESSION ADMIN ── */
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
@@ -231,7 +231,7 @@ $kamar_maint     = count(array_filter($semua_kamar, fn($k) => $k['status'] === '
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manajemen Kamar — Grand Lumière</title>
+<title>Manajemen Kamar — Grand Lumière 2</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -451,7 +451,7 @@ tr:hover td { background: rgba(255,255,255,.015); }
 <aside class="sidebar">
   <div class="logo">
     <span class="crown">👑</span>
-    <h2>Grand Lumière</h2>
+    <h2>Grand Lumière 2</h2>
     <small>Admin Panel</small>
   </div>
   <nav class="nav">
