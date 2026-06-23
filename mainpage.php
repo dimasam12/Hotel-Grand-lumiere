@@ -1211,6 +1211,27 @@ $stmt->close();
             margin-bottom: 14px;
         }
 
+        /* ── ERROR MESSAGE ── */
+        .field-error {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #e05252;
+            animation: fadeInDown .2s ease;
+        }
+        .field-error.show { display: flex; }
+        .field-error i { font-size: 12px; flex-shrink: 0; }
+        .form-field input.has-error {
+            border-color: rgba(224, 82, 82, 0.7) !important;
+            background: rgba(224, 82, 82, 0.05) !important;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         .form-field label {
             display: block;
             font-size: 10px;
@@ -2132,7 +2153,12 @@ $stmt->close();
                             <label>Nama Lengkap</label>
                             <div class="input-icon-wrap">
                                 <i class="ti ti-user"></i>
-                                <input type="text" placeholder="John Doe" id="guestName">
+                                <input type="text" placeholder="John Doe" id="guestName"
+                                    oninput="clearError('guestName','errName')">
+                            </div>
+                            <div class="field-error" id="errName">
+                                <i class="ti ti-alert-circle"></i>
+                                <span id="errNameMsg">Nama lengkap wajib diisi</span>
                             </div>
                         </div>
 
@@ -2140,7 +2166,12 @@ $stmt->close();
                             <label>Email</label>
                             <div class="input-icon-wrap">
                                 <i class="ti ti-mail"></i>
-                                <input type="email" placeholder="your@email.com" id="guestEmail">
+                                <input type="email" placeholder="nama@gmail.com" id="guestEmail"
+                                    oninput="clearError('guestEmail','errEmail')">
+                            </div>
+                            <div class="field-error" id="errEmail">
+                                <i class="ti ti-alert-circle"></i>
+                                <span id="errEmailMsg">Format email tidak valid (contoh: nama@gmail.com)</span>
                             </div>
                         </div>
 
@@ -2430,17 +2461,33 @@ $stmt->close();
         selectedPrice = currentPricePerNight;
         calcTotal();
 
-        // SHAKE FUNCTION
+        // ── FIELD ERROR HELPERS ──
+        function showError(inputId, errId, msg) {
+            const el = document.getElementById(inputId);
+            const errEl = document.getElementById(errId);
+            const msgEl = document.getElementById(errId + 'Msg');
+            if (el) el.classList.add('has-error');
+            if (errEl) errEl.classList.add('show');
+            if (msgEl && msg) msgEl.textContent = msg;
+            if (el) {
+                el.style.animation = 'shake .35s ease';
+                setTimeout(() => { el.style.animation = ''; el.focus(); }, 350);
+            }
+        }
+
+        function clearError(inputId, errId) {
+            const el = document.getElementById(inputId);
+            const errEl = document.getElementById(errId);
+            if (el) el.classList.remove('has-error');
+            if (errEl) errEl.classList.remove('show');
+        }
+
         function shake(id) {
             const el = document.getElementById(id);
             if (!el) return;
-            el.style.borderColor = 'rgba(212,80,80,0.7)';
+            el.classList.add('has-error');
             el.style.animation = 'shake .35s ease';
-            setTimeout(() => {
-                el.style.borderColor = '';
-                el.style.animation = '';
-                el.focus();
-            }, 400);
+            setTimeout(() => { el.style.animation = ''; }, 400);
         }
 
         // SUBMIT BOOKING WITH MIDTRANS PAYMENT
@@ -2450,19 +2497,35 @@ $stmt->close();
             const ci = document.getElementById('checkIn').value;
             const co = document.getElementById('checkOut').value;
 
+            let hasError = false;
+
+            // Validasi nama
             if (!name) {
-                shake('guestName');
-                return;
+                showError('guestName', 'errName', 'Nama lengkap wajib diisi');
+                hasError = true;
+            } else {
+                clearError('guestName', 'errName');
             }
-            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                shake('guestEmail');
-                return;
+
+            // Validasi email
+            if (!email) {
+                showError('guestEmail', 'errEmail', 'Email wajib diisi');
+                hasError = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('guestEmail', 'errEmail', 'Format email tidak valid (contoh: nama@gmail.com)');
+                hasError = true;
+            } else {
+                clearError('guestEmail', 'errEmail');
             }
+
+            // Validasi tanggal
             if (!ci || !co || co <= ci) {
                 shake('checkIn');
                 shake('checkOut');
-                return;
+                hasError = true;
             }
+
+            if (hasError) return;
 
             const diff = (new Date(co) - new Date(ci)) / (1000 * 60 * 60 * 24);
             const nights = diff > 0 ? Math.round(diff) : 1;
