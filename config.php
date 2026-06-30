@@ -4,6 +4,7 @@ $user   = getenv('MYSQLUSER')     ?: 'root';
 $pass   = getenv('MYSQLPASSWORD') ?: '';
 $db     = getenv('MYSQLDATABASE') ?: 'grand_lumiere';
 $port   = getenv('MYSQLPORT')     ?: 3306;
+$hotel_id = (int)(getenv('HOTEL_ID') ?: 1); // tambah ini
 
 $conn = new mysqli($host, $user, $pass, $db, (int)$port);
 if ($conn->connect_error) {
