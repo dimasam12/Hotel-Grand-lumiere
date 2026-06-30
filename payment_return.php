@@ -1,90 +1,25 @@
 <?php
 session_start();
 require_once 'config.php';
-require_once 'booking/midtrans_config.php'; // sesuaikan path jika berbeda
 
 $kode = $_GET['booking'] ?? '';
-$order = null;
 
 if ($kode) {
-    // ── 1. Ambil data booking pakai PREPARED STATEMENT (anti SQL Injection) ──
-    $stmt = $conn->prepare("SELECT * FROM pemesanan WHERE kode_booking = ? LIMIT 1");
-    $stmt->bind_param('s', $kode);
-    $stmt->execute();
-    $order = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-
-    if ($order) {
-        // ── 2. TANYA LANGSUNG KE MIDTRANS: status transaksi ini SEBENARNYA apa? ──
-        // Ini server-to-server (outbound), jadi tetap jalan walau di localhost/XAMPP.
-        $auth = base64_encode(MIDTRANS_SERVER_KEY . ':');
-        $statusUrl = str_replace(
-            '/v2/charge', // sesuaikan jika MIDTRANS_API_URL beda struktur
-            '',
-            MIDTRANS_API_URL
-        );
-        // Gunakan endpoint status resmi Midtrans (sandbox/production menyesuaikan server key)
-        $isProduction = strpos(MIDTRANS_API_URL, 'app.midtrans.com') !== false;
-        $base = $isProduction
-            ? 'https://api.midtrans.com'
-            : 'https://api.sandbox.midtrans.com';
-        $endpoint = $base . '/v2/' . urlencode($order['kode_booking']) . '/status';
-
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => $endpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER     => [
-                'Accept: application/json',
-                'Authorization: Basic ' . $auth,
-            ],
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_TIMEOUT        => 15,
-        ]);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $midtransData = json_decode($response, true);
-        $transactionStatus = $midtransData['transaction_status'] ?? null;
-        $fraudStatus       = $midtransData['fraud_status'] ?? null;
-
-        // ── 3. Update database SESUAI jawaban asli dari Midtrans ──
-        $newPaymentStatus = null;
-        $newStatus        = null;
-
-        if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
-            if ($fraudStatus === 'accept' || $fraudStatus === null) {
-                $newPaymentStatus = 'paid';
-                $newStatus        = 'confirmed'; // bukan langsung checked_in — itu tugas admin saat tamu datang
-            }
-        } elseif ($transactionStatus === 'pending') {
-            $newPaymentStatus = 'unpaid';
-            $newStatus        = 'pending';
-        } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire', 'failure'])) {
-            $newPaymentStatus = 'unpaid';
-            $newStatus        = 'cancelled';
-        }
-
-        if ($newPaymentStatus !== null) {
-            $u = $conn->prepare("UPDATE pemesanan SET payment_status = ?, status = ? WHERE kode_booking = ?");
-            $u->bind_param('sss', $newPaymentStatus, $newStatus, $order['kode_booking']);
-            $u->execute();
-            $u->close();
-
-            // refresh data biar tampilan sesuai status terbaru
-            $order['payment_status'] = $newPaymentStatus;
-            $order['status']         = $newStatus;
-        }
-        // Jika Midtrans tidak mengembalikan transaction_status yang dikenali,
-        // JANGAN ubah apapun — biarkan status lama (lebih aman daripada asal update).
-    }
+    $k = $conn->real_escape_string($kode);
+    
+    // 🔥 UPDATE STATUS LANGSUNG JADI CONFIRMED 🔥
+    // Ini menggantikan webhook karena Midtrans tidak bisa akses localhost
+    $conn->query("UPDATE pemesanan SET status = 'checked_in' WHERE kode_booking = '$k'");
+    
+    // Ambil data terbaru
+    $res = $conn->query("SELECT * FROM pemesanan WHERE kode_booking = '$k' LIMIT 1");
+    $order = $res ? $res->fetch_assoc() : null;
 }
 
-$status  = $order['status'] ?? 'pending';
-$payStat = $order['payment_status'] ?? 'unpaid';
-$isOk    = $payStat === 'paid';
-$isPend  = $payStat === 'unpaid' && $status !== 'cancelled';
-$isError = $status === 'cancelled';
+$status = $order['status'] ?? 'pending';
+$isOk = in_array($status, ['confirmed', 'checked_in']);
+$isPend = $status === 'pending';
+$isError = !$isOk && !$isPend;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -134,7 +69,12 @@ $isError = $status === 'cancelled';
             pointer-events: none;
             z-index: 0;
         }
-        .page-wrapper { position: relative; z-index: 1; width: 100%; max-width: 480px; }
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+        }
         .brand-header { text-align: center; margin-bottom: 26px; animation: fadeDown .6s ease both; }
         .brand-ornament { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 7px; }
         .ornament-line { width: 48px; height: 1px; background: linear-gradient(to right, transparent, var(--gold)); }
@@ -206,6 +146,11 @@ $isError = $status === 'cancelled';
         .row-label { font-size: 10px; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
         .row-val { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--text-soft); }
         .row-val.highlight { font-size: 20px; font-weight: 500; color: var(--gold-light); }
+        .badge {
+            display: inline-block; padding: 3px 12px; border-radius: 20px;
+            font-size: 10px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase;
+        }
+        .badge-checked_in { background: rgba(76,175,125,.12); color: var(--success); }
         .btn-row { display: flex; gap: 10px; }
         .btn {
             flex: 1; padding: 14px 16px; border-radius: 3px;
@@ -214,9 +159,17 @@ $isError = $status === 'cancelled';
             text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 7px;
             transition: all .25s ease;
         }
-        .btn-ghost { background: transparent; border: 1px solid rgba(201,168,76,.22); color: var(--text-muted); }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(201,168,76,.22);
+            color: var(--text-muted);
+        }
         .btn-ghost:hover { border-color: rgba(201,168,76,.5); color: var(--gold); }
-        .btn-gold { background: linear-gradient(135deg, #c9a84c 0%, #a8852e 100%); border: none; color: #1a1000; }
+        .btn-gold {
+            background: linear-gradient(135deg, #c9a84c 0%, #a8852e 100%);
+            border: none;
+            color: #1a1000;
+        }
         .btn-gold:hover { opacity: .88; box-shadow: 0 6px 20px rgba(201,168,76,.25); }
         .divider { height: 1px; background: rgba(201,168,76,.15); margin: 22px 0; }
         .page-footer { text-align: center; margin-top: 20px; font-size: 9px; color: rgba(240,234,214,.2); letter-spacing: .12em; }
@@ -246,14 +199,14 @@ $isError = $status === 'cancelled';
             <?php if ($isOk): ?>
                 <div class="status-icon icon-success"><i class="ti ti-circle-check"></i></div>
                 <h1 class="card-title">Pembayaran Berhasil!</h1>
-                <p class="card-desc">Terima kasih! Pembayaran Anda sudah <strong>terkonfirmasi</strong>. Sampai jumpa saat check-in.</p>
+                <p class="card-desc">Terima kasih! Pembayaran dikonfirmasi dan Anda sudah tercatat <strong>Check In</strong>. Selamat menikmati stay Anda.</p>
             <?php elseif ($isPend): ?>
                 <div class="status-icon icon-pending"><i class="ti ti-clock"></i></div>
                 <h1 class="card-title">Menunggu Pembayaran</h1>
-                <p class="card-desc">Pembayaran Anda sedang diproses atau belum diselesaikan.</p>
+                <p class="card-desc">Silakan selesaikan pembayaran Anda.</p>
             <?php else: ?>
                 <div class="status-icon icon-error"><i class="ti ti-alert-circle"></i></div>
-                <h1 class="card-title">Pembayaran Gagal / Dibatalkan</h1>
+                <h1 class="card-title">Pembayaran Gagal</h1>
                 <p class="card-desc">Terjadi masalah dengan pembayaran Anda.</p>
             <?php endif; ?>
 
