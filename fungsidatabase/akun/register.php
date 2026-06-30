@@ -1,7 +1,6 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
 header('Content-Type: application/json');
 require_once '../../config.php';
 
@@ -36,9 +35,9 @@ if ($password !== $confirm_password) {
   exit;
 }
 
-// Cek username atau email sudah ada
-$stmt = $conn->prepare('SELECT id FROM users WHERE username = ? OR email = ?');
-$stmt->bind_param('ss', $username, $email);
+// Cek username atau email sudah ada di hotel yang sama
+$stmt = $conn->prepare('SELECT id FROM users WHERE (username = ? OR email = ?) AND hotel_id = ?');
+$stmt->bind_param('ssi', $username, $email, $hotel_id);
 $stmt->execute();
 $stmt->store_result();
 if ($stmt->num_rows > 0) {
@@ -49,11 +48,10 @@ if ($stmt->num_rows > 0) {
 }
 $stmt->close();
 
-// Simpan user baru dengan role DEFAULT 'user'
+// Simpan user baru dengan hotel_id dari env
 $hashed = password_hash($password, PASSWORD_BCRYPT);
-$stmt = $conn->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
-$stmt->bind_param('sss', $username, $email, $hashed);
-
+$stmt = $conn->prepare('INSERT INTO users (username, email, password, hotel_id) VALUES (?, ?, ?, ?)');
+$stmt->bind_param('sssi', $username, $email, $hashed, $hotel_id);
 if ($stmt->execute()) {
   echo json_encode(['status' => 'success', 'message' => 'Akun berhasil dibuat! Silakan login.']);
 } else {
