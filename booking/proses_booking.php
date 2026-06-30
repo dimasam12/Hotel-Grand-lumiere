@@ -9,6 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// ══════════════════════════════════════════
+// HOTEL ID — repo ini khusus Hotel 1
+// ══════════════════════════════════════════
+$hotel_id = 1;
+
 $nama_tamu         = trim($_POST['nama_tamu'] ?? '');
 $email_tamu        = trim($_POST['email_tamu'] ?? '');
 $tipe_kamar        = trim($_POST['tipe_kamar'] ?? '');
@@ -46,10 +51,10 @@ $kode_booking = 'GL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid(mt_rand
 
 $stmt = $conn->prepare("
     INSERT INTO pemesanan
-        (user_id, kode_booking, nama_tamu, email_tamu, tipe_kamar, harga_per_malam,
+        (hotel_id, user_id, kode_booking, nama_tamu, email_tamu, tipe_kamar, harga_per_malam,
          check_in, check_out, jumlah_malam, jumlah_tamu, subtotal, pajak, total,
          status, permintaan_khusus)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
 ");
 
 if (!$stmt) {
@@ -57,8 +62,8 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('issssissiiiiis',
-    $user_id, $kode_booking, $nama_tamu, $email_tamu,
+$stmt->bind_param('iissssissiiiiis',
+    $hotel_id, $user_id, $kode_booking, $nama_tamu, $email_tamu,
     $tipe_kamar, $harga_per_malam,
     $check_in, $check_out, $jumlah_malam, $jumlah_tamu,
     $subtotal, $pajak, $total, $permintaan_khusus
