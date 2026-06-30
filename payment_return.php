@@ -7,9 +7,12 @@ $kode = $_GET['booking'] ?? '';
 if ($kode) {
     $k = $conn->real_escape_string($kode);
     
-    // 🔥 UPDATE STATUS LANGSUNG JADI CONFIRMED 🔥
-    // Ini menggantikan webhook karena Midtrans tidak bisa akses localhost
-    $conn->query("UPDATE pemesanan SET status = 'checked_in' WHERE kode_booking = '$k'");
+    // 🔥 UPDATE STATUS DAN PAYMENT STATUS 🔥
+    // Update status menjadi checked_in DAN payment_status menjadi paid
+    $conn->query("UPDATE pemesanan SET 
+        status = 'checked_in', 
+        payment_status = 'paid' 
+        WHERE kode_booking = '$k'");
     
     // Ambil data terbaru
     $res = $conn->query("SELECT * FROM pemesanan WHERE kode_booking = '$k' LIMIT 1");
@@ -17,8 +20,9 @@ if ($kode) {
 }
 
 $status = $order['status'] ?? 'pending';
-$isOk = in_array($status, ['confirmed', 'checked_in']);
-$isPend = $status === 'pending';
+$payment_status = $order['payment_status'] ?? 'unpaid';
+$isOk = in_array($status, ['confirmed', 'checked_in']) && $payment_status === 'paid';
+$isPend = $status === 'pending' || $payment_status === 'unpaid';
 $isError = !$isOk && !$isPend;
 ?>
 <!DOCTYPE html>
@@ -151,6 +155,8 @@ $isError = !$isOk && !$isPend;
             font-size: 10px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase;
         }
         .badge-checked_in { background: rgba(76,175,125,.12); color: var(--success); }
+        .badge-paid { background: rgba(76,175,125,.12); color: var(--success); }
+        .badge-unpaid { background: rgba(224,82,82,.12); color: var(--danger); }
         .btn-row { display: flex; gap: 10px; }
         .btn {
             flex: 1; padding: 14px 16px; border-radius: 3px;
@@ -235,6 +241,22 @@ $isError = !$isOk && !$isPend;
                     <div class="detail-row">
                         <span class="row-label">Check-out</span>
                         <span class="row-val"><?= date('d M Y', strtotime($order['check_out'])) ?></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="row-label">Status Pesanan</span>
+                        <span class="row-val">
+                            <span class="badge <?= $order['status'] === 'checked_in' ? 'badge-checked_in' : '' ?>">
+                                <?= ucfirst(str_replace('_', ' ', $order['status'])) ?>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="row-label">Status Pembayaran</span>
+                        <span class="row-val">
+                            <span class="badge <?= $order['payment_status'] === 'paid' ? 'badge-paid' : 'badge-unpaid' ?>">
+                                <?= $order['payment_status'] === 'paid' ? '✅ Lunas' : '❌ Belum Bayar' ?>
+                            </span>
+                        </span>
                     </div>
                     <div class="detail-row total">
                         <span class="row-label">Total</span>
