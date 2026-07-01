@@ -36,7 +36,7 @@ if ($password !== $confirm_password) {
 }
 
 // Cek username atau email sudah ada di hotel yang sama
-$stmt = $conn->prepare('SELECT id, username, email, password, hotel_id FROM users WHERE (username = ? OR email = ?) AND role = "user" AND hotel_id = ? LIMIT 1');
+$stmt = $conn->prepare('SELECT id FROM users WHERE (username = ? OR email = ?) AND hotel_id = ?');
 $stmt->bind_param('ssi', $username, $email, $hotel_id);
 $stmt->execute();
 $stmt->store_result();
