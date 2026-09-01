@@ -1,15 +1,19 @@
-FROM dunglas/frankenphp:php8.4-bookworm
+FROM php:8.4-fpm
 
-RUN install-php-extensions mysqli pdo_mysql
+RUN apt-get update && apt-get install -y unzip git && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install mysqli pdo_mysql
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+COPY composer.json composer.lock ./
+
+RUN composer install --optimize-autoloader --no-scripts --no-interaction --no-dev
+
 COPY . /app
 
-RUN composer install --optimize-autoloader --no-scripts --no-interaction
+EXPOSE 9000
 
-ENV SERVER_NAME=":8080"
-
-CMD ["frankenphp", "run", "--config", "/app/Caddyfile"]
+CMD ["php-fpm"]
