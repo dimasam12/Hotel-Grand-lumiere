@@ -3,20 +3,15 @@
 # Dijalankan digabung dengan file base (docker-compose.yml), TANPA docker-compose.override.yml:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 #
-# Catatan resource limit: angka di bawah ini ESTIMASI, sesuaikan dengan
-# hasil "free -h" dan "nproc" di server kamu sebelum dipakai beneran.
+# Resource limit disesuaikan untuk server: 2 core CPU, ~6.9 GB RAM.
+# Total teralokasikan ke container: 2 core CPU, ~3.75 GB RAM.
+# Sisanya sengaja disisakan untuk OS dan buffer lonjakan traffic.
 
 services:
   php:
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
+    mem_limit: 1g
+    cpus: 0.75
     logging:
       driver: "json-file"
       options:
@@ -34,14 +29,8 @@ services:
       - nginx_logs:/var/log/nginx
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
+    mem_limit: 256m
+    cpus: 0.25
     logging:
       driver: "json-file"
       options:
@@ -50,14 +39,8 @@ services:
 
   mysql:
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
+    mem_limit: 2.5g
+    cpus: 1.0
     logging:
       driver: "json-file"
       options:
