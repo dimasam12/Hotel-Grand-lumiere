@@ -1,30 +1,22 @@
-# docker-compose.prod.yml — Grand Lumière (Production Override)
+# docker-compose.prod.yml — Grand Lumière (Production)
 #
-# File ini TIDAK berdiri sendiri. Dijalankan digabung dengan file developer:
+# Dijalankan digabung dengan file base (docker-compose.yml), TANPA docker-compose.override.yml:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 #
-# Prinsip: file developer (docker-compose.yml) TIDAK diubah.
-# File ini hanya menimpa/menambahkan bagian yang perlu untuk production.
-
-version: "3.9"
+# Karena docker-compose.yml (base) TIDAK punya bind mount source code
+# maupun port 3306 terbuka, file ini tidak perlu "mengosongkan" apapun —
+# cukup menambahkan hal-hal yang memang dibutuhkan production.
 
 services:
-
   php:
     restart: unless-stopped
-    # Di development, source code di-bind mount (".:/app") supaya edit langsung kelihatan.
-    # Di production, TIDAK boleh bind mount source code dari host.
-    # Kode harus sudah "dibekukan" di dalam image saat build (docker compose build).
-    # Baris di bawah menimpa volume developer supaya bind mount TIDAK aktif di production.
-    volumes: []
 
   nginx:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"           # tambahan untuk HTTPS
+      - "443:443"
     volumes:
-      # Nginx tetap perlu akses ke file statis (asset, gambar) -> mount read-only
       - .:/app:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - nginx_logs:/var/log/nginx
@@ -33,12 +25,8 @@ services:
 
   mysql:
     restart: unless-stopped
-    # Port 3306 di file developer dibuka supaya bisa diakses tool seperti DBeaver/HeidiSQL.
-    # Di production, port ini WAJIB ditutup agar database tidak bisa diakses dari internet.
-    ports: []
 
 volumes:
   nginx_logs:
   certbot_www:
   certbot_certs:
-
