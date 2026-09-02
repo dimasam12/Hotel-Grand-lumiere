@@ -3,13 +3,25 @@
 # Dijalankan digabung dengan file base (docker-compose.yml), TANPA docker-compose.override.yml:
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 #
-# Karena docker-compose.yml (base) TIDAK punya bind mount source code
-# maupun port 3306 terbuka, file ini tidak perlu "mengosongkan" apapun —
-# cukup menambahkan hal-hal yang memang dibutuhkan production.
+# Catatan resource limit: angka di bawah ini ESTIMASI, sesuaikan dengan
+# hasil "free -h" dan "nproc" di server kamu sebelum dipakai beneran.
 
 services:
   php:
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   nginx:
     restart: unless-stopped
@@ -22,11 +34,37 @@ services:
       - nginx_logs:/var/log/nginx
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   mysql:
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   nginx_logs:
   certbot_www:
-  certbot_certs:/etc/letsencrypt:
+  certbot_certs:
