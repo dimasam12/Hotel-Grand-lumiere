@@ -29,4 +29,4 @@ services:
 volumes:
   nginx_logs:
   certbot_www:
-  certbot_certs:
+  certbot_certs:/etc/letsencrypt:
